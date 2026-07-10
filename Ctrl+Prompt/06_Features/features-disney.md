@@ -1,13 +1,14 @@
 # Features — Disney Agent Support Tickets
 
-> Scope: CLI-first. Five commands. Build in order. Source: brief §1, §5.
+> Scope: CLI-first. Six commands (`run` + five). Build in order. Source: brief §1, §5.
 > Out of scope: any GUI/dashboard, and any auto-execution of fixes into production.
 
 ## P0 — Must be in the demo (non-negotiable)
 
 | # | Command / Feature | Description |
 |---|---|---|
-| F1 | **`connect` — collection layer** | Pull tickets from a source and normalize to canonical JSON. **Live Jira** primary; `--mock` fallback; descriptor-driven multi-source. Emits `_meta` provenance. |
+| F0 | **`run` — one-command pipeline** | Chains `connect → learn → approve → triage → solve → report` in a single command (the simple path). Granular commands remain for inspecting a stage. Launcher `bin/agent`. |
+| F1 | **`connect` — collection layer** | Pull tickets from a source and normalize to canonical JSON. **Live Jira** (per-account/company via `connections.json`) + CSV file source; `--mock` fallback; descriptor-driven multi-source. Emits `_meta` provenance. |
 | F2 | **`learn` — ingest + profile + propose** | Ingest historical ticket/resolution data, profile the corpus (zero domain knowledge), and **propose** a taxonomy behind a human-review gate. |
 | F3 | **`triage` — categorize + fix priority** | Deterministically cluster tickets, compute **effective priority**, and flag `INFLATED` / `SUPPRESSED` / `ALIGNED`. Corrects priority inflation. |
 | F4 | **Root-cause clustering + ranking** | Collapse repeated tickets into root-cause incidents; rank by `severity_real × ticket_count`, not declared priority. **Entity veto** prevents mixing distinct services. |
@@ -18,7 +19,7 @@
 |---|---|---|
 | F5 | **`solve` — RCA + playbook** | The LLM step: print root-cause hypothesis + `alternative_hypotheses`, **cited evidence[]**, and a numbered, terminal-ready resolution playbook. |
 | F6 | **Trust / provenance layer** | `calibration_status`, threshold, taxonomy version and reviewer on every output; `unverified` / `heuristic` banners. This is what makes the playbook *trustworthy*. |
-| F7 | **`report` — consolidated output** | 80/20 executive summary, incident table, priority-gap section, playbooks with banners. Formats: `md/html/json/terminal`. For the client decision-maker/SME. |
+| F7 | **`report` — consolidated output** | 80/20 executive summary, incident table, priority-gap section, playbooks with banners. Formats: `terminal/md/json`. For the client decision-maker/SME. |
 
 ## P2 — Nice to have (if time allows)
 
@@ -26,6 +27,7 @@
 |---|---|---|
 | F8 | **`--eval` calibration** | Use `cluster_hint` as a labeled set to sweep the merge threshold and report **F1** — the number to defend in front of judges. |
 | F9 | **Cross-source flagging** | Explicitly mark clusters that span >1 source (Jira/Zendesk/PagerDuty). |
+| F12 | **Multi-account / multi-company Jira** | Each `connections.json` entry = one account/company (own `base_url`, own credentials, own project via `query`/`vars`). `--test` previews the resolved URL + JQL. |
 | F10 | **Embedding/LLM cache (SQLite)** | Avoid latency ruining the live pitch. |
 | F11 | **Scale dataset to 50–100** | With adversarial cases: two services same symptom, feature request naming a service, legit 1-day-old P1, orphan tickets, two close-but-distinct clusters. |
 

@@ -1,7 +1,7 @@
 # 01_Prompt — Foundation: canonical model + `connect` + ticket data
 
 ## Context (what already exists)
-- The master prompt (`00_masterprompt.md`) established the stack, the five commands, and the ten
+- The master prompt (`00_masterprompt.md`) established the stack, the six commands, and the ten
   ground rules. Nothing has been coded yet.
 
 ## Attach
@@ -26,7 +26,7 @@ resolution_text · raw_extra (unmapped fields, preserved not read)
 - `--mock <file.json>`: load a canonical JSON directly (implement this path first, using the
   sample). Explicitly **drop `cluster_hint`** when building tickets.
 - `--project <name>`: descriptor-driven collection. Support `kind: rest | file` minimally.
-- Live **Jira** via `descriptors/jira_rest.yaml` + `connections.yaml` (basic auth, token by env
+- Live **Jira** via `descriptors/jira_rest.json` + `connections.json` (basic auth, token by env
   var name). Include `--test` (auth + reachability) and `--discover` (sample + field/vocab inventory).
 - `--redact` (mask emails/names/tokens on real sources). `--since <window>`.
 - Map + normalize per descriptor; unknown vocab → `default` **and log it**; capture unmapped →
@@ -36,7 +36,7 @@ resolution_text · raw_extra (unmapped fields, preserved not read)
   priority_vocabulary, unmapped_fields, temporal_span_days, pii_redacted`.
 
 **4. Secrets**
-- Secrets by env-var **name** only. Verify `600` on `connections.yaml`. Never write secrets to the
+- Secrets by env-var **name** only. Verify `600` on `connections.json`. Never write secrets to the
   JSON or logs.
 
 ## Acceptance

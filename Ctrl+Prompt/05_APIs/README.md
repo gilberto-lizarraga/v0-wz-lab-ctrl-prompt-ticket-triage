@@ -20,50 +20,52 @@ a **source-agnostic `connect` layer**, not a hardcoded Jira client:
 
 | Source | Mode | How |
 |---|---|---|
-| **Jira** | **live** | `jira_rest` descriptor + API token (primary demo path) |
-| Zendesk | descriptor / mock | `generic_rest` descriptor |
-| PagerDuty | descriptor / mock | `generic_rest` descriptor |
-| In-house / legacy | file / mock | `generic_file` descriptor (CSV/JSON export) |
+| **Jira** | **live** | `jira_rest` descriptor + API token (primary demo path). Implemented via `urllib` — real HTTP, Basic auth, offset pagination. |
+| Zendesk / PagerDuty | descriptor / mock | Copy `jira_rest.json`, edit paths + normalize tables |
+| In-house / legacy | file | `jira_csv.json` descriptor — CSV/JSON/NDJSON export (implemented) |
 | Any (demo fallback) | `--mock` | canonical JSON loaded as if a collector produced it |
 
 Onboarding a new source = **writing a descriptor (config), not code**. The engine never talks to
 a source — only `connect` does, and everything downstream runs over the canonical JSON.
 
+> **Config format:** JSON is the shipped default (`connections.json`, `descriptors/*.json`,
+> `taxonomy.json`) so the tool runs on the stdlib with zero installs. YAML is auto-detected and
+> used if PyYAML is present.
+
 ## Live Jira config (shape)
 
-```yaml
-# connections.yaml — identity + auth only, NO secrets in cleartext
-version: 1
-connections:
-  - name: jira-sre
-    descriptor: descriptors/jira_rest.yaml
-    base_url: ${JIRA_BASE_URL}          # e.g. https://<org>.atlassian.net
-    auth:
-      method: basic                     # Jira Cloud: email + API token (basic)
-      user_env: JIRA_EMAIL
-      token_env: JIRA_API_TOKEN         # variable NAME, never the value
+```jsonc
+// connections.json — identity + auth only, NO secrets in cleartext. chmod 600.
+{
+  "version": 1,
+  "connections": [
+    { "name": "jira-sre",
+      "descriptor": "descriptors/jira_rest.json",
+      "base_url": "${JIRA_BASE_URL}",                 // e.g. https://<org>.atlassian.net
+      "auth": {"method": "basic",                     // Jira Cloud: email + API token
+               "user_env": "JIRA_EMAIL",
+               "token_env": "JIRA_API_TOKEN"},         // variable NAME, never the value
+      "vars": {"JIRA_PROJECT": "SRE", "SINCE": "90d"} }
+  ]
+}
 ```
 
-```yaml
-# descriptors/jira_rest.yaml (excerpt)
-kind: rest
-transport:
-  list_path: /rest/api/3/search
-  query: { jql: "project = SRE AND created >= -90d" }
-  record_selector: "$.issues[*]"
-pagination: { style: offset, page_size_param: maxResults, page_size: 100 }
-mapping:
-  id:                "$.key"
-  title:             "$.fields.summary"
-  body:              "$.fields.description"
-  created_at:        "$.fields.created"
-  declared_priority: "$.fields.priority.name"
-  status:            "$.fields.status.name"
-  reporter:          "$.fields.reporter.displayName"
-normalize:
-  declared_priority: { P1: 0, P2: 1, P3: 2, P4: 3, default: 2 }  # 0 = most severe
-  status:            { Open: open, "In Progress": in_progress, Done: resolved, default: open }
+## Multiple accounts / companies
+
+Each connection is an **independent account/company**: its own `base_url`, its own credential env
+vars, and its own Jira project. Two ways to set the project:
+
+```jsonc
+{ "name": "acme-jira", "base_url": "https://acme.atlassian.net",
+  "auth": {"method":"basic","user_env":"ACME_JIRA_EMAIL","token_env":"ACME_JIRA_TOKEN"},
+  "query": {"jql": "project = OPS AND created >= -30d"} }   // project via JQL override
+{ "name": "globex-jira", "base_url": "https://globex.atlassian.net",
+  "auth": {"method":"basic","user_env":"GLOBEX_JIRA_EMAIL","token_env":"GLOBEX_JIRA_TOKEN"},
+  "vars": {"JIRA_PROJECT": "SUPPORT"} }                     // project via a variable
 ```
+
+`agent connect --test <name>` prints the resolved URL + JQL before any network call, so you can
+confirm the right company and project. `${VAR}` lookup order: environment → connection `vars` → default.
 
 ## Secret-handling rules
 
@@ -72,7 +74,7 @@ normalize:
 | Secrets referenced by **variable name**, never value | No leaks in git, logs, demo screenshots |
 | `agent connect --test jira-sre` before extracting | Fails early (401 vs network vs permissions) |
 | Secrets never in canonical JSON or report | Output is shareable |
-| `600` on `connections.yaml`, verified at startup | World-readable credentials = incident |
+| `600` on `connections.json`, verified at startup | World-readable credentials = incident |
 
 ## Failure handling (demo resilience)
 

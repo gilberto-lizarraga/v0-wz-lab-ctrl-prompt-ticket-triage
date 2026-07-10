@@ -22,10 +22,11 @@ The critical dependency: **the adaptation phase cannot self-approve.** A poorly 
 taxonomy produces plausible, wrong clusters and confident playbooks over false root causes —
 the most expensive, hardest-to-detect failure. A human approves the taxonomy before ACT runs.
 
-## 3. Commands (the five-command scope)
+## 3. Commands (the six-command scope)
 
 | Command | Phase | What it does |
 |---|---|---|
+| **`run`** | ALL | One command that chains the whole pipeline: `connect → learn → approve → triage → solve → report`. The simple path. |
 | **`connect`** | Phase 0 | Talks to a source (Jira live / mock / descriptor), normalizes to a canonical JSON. The **only** boundary with an external system. |
 | **`learn`** | OBSERVE + ADAPT | Profiles the corpus with zero domain knowledge, then **proposes** a domain taxonomy for human review. |
 | **`triage`** | ACT | Deterministically classifies, clusters, and computes **effective priority** vs declared. No LLM. |
@@ -34,14 +35,18 @@ the most expensive, hardest-to-detect failure. A human approves the taxonomy bef
 
 > Brief §5 names `learn`/`triage`/`solve` as the core three. `connect` and `report` are kept as
 > explicit supporting commands: `connect` is what makes **live Jira + multi-source** real, and
-> `report` is the artifact for the client-side decision-maker/SME.
+> `report` is the artifact for the client-side decision-maker/SME. **`run`** was added so the whole
+> pipeline is one command instead of five manual steps; the granular commands remain for inspecting
+> a stage. A `bin/agent` launcher makes them first-class (`agent connect …`).
 
 ## 4. Functional requirements
 
 ### 4.1 `connect` (multi-source, mock + live)
-- Descriptor-driven: `rest` / `graphql` / `file` kinds. Onboarding a source = writing a
-  descriptor (config), not code.
+- Descriptor-driven: `rest` / `graphql` / `file` kinds (`descriptors/*.json`). Onboarding a source
+  = writing a descriptor (config), not code.
 - **Jira live** via API token; secrets referenced **by variable name**, never by value.
+- **Multiple accounts/companies:** each `connections.json` entry has its own `base_url`, its own
+  credential env vars, and its own Jira project via a `query.jql` override or `vars` placeholders.
 - `--mock <file.json>` skips transport for offline demo.
 - `--discover` inventories fields/vocabularies before a full pull; `--test` validates auth first.
 - `--redact` masks PII on real sources. Unknown vocab values map to `default` **and are logged**.
@@ -53,8 +58,9 @@ the most expensive, hardest-to-detect failure. A human approves the taxonomy bef
   emit `corpus_profile.json` (silhouette, vocabulary_divergence, cross-source clusters).
 - ADAPT: discover entities, propose subsystems (LLM), **calibrate merge threshold** against a
   labeled subset (F1 sweep) or fall back to a heuristic and **say so**.
-- Gate: emits `taxonomy.draft.yaml`; `triage`/`solve` read **only** the approved `taxonomy.yaml`.
-  `--auto-approve` exists for CI/demo but stamps `calibration_status: unreviewed`.
+- Gate: emits `taxonomy.draft.json`; `triage`/`solve` read **only** the approved `taxonomy.json`
+  (YAML auto-detected if PyYAML is present). `--auto-approve` exists for CI/demo and `run`, but
+  stamps `calibration_status: unreviewed`.
 
 ### 4.3 `triage` (deterministic engine, rules R1–R6)
 - R1 extraction · R2 type gate (INCIDENT / FEATURE_REQUEST / UNKNOWN) · R3+R4 clustering with
@@ -69,9 +75,11 @@ the most expensive, hardest-to-detect failure. A human approves the taxonomy bef
 ### 4.5 `report`
 - Provenance cover · executive 80/20 summary · incident table · priority-gap section ·
   playbooks with banners · deflect/unknown · calibration appendix (F1 if `--eval` ran).
-- Formats: `md | html | json | terminal`. Every figure reconciles with `connect`'s `_meta`.
+- Formats: `terminal | md | json`. Every figure reconciles with `connect`'s `_meta`.
 
 ## 5. Non-functional requirements
+- **Stack:** stdlib-first (runs with zero installs); Typer/Bedrock/scikit-learn/PyYAML are optional
+  production upgrades. Config is JSON by default, YAML if PyYAML is present.
 - **Provenance on every output** (taxonomy version, calibration status, threshold, reviewer).
 - **Degradation rule:** no rule may *require* an optional field; missing → rule disabled + declared.
 - **`cluster_hint` is evaluation-only** — the production loader drops it explicitly.

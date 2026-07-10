@@ -26,7 +26,7 @@ playbook. Fixing one root cause retires many tickets at once.
 ## 3. Scope
 
 **In scope**
-- CLI-first agent (five commands — see PRD): `connect · learn · triage · solve · report`.
+- CLI-first agent (six commands — see PRD): `run` + `connect · learn · triage · solve · report`.
 - **Live Jira** integration (dev/sandbox board, API token) as the primary source.
 - **Multi-source** collection via a descriptor-driven `connect` layer (Zendesk, PagerDuty,
   in-house trackers). `--mock` supported for offline demo resilience.

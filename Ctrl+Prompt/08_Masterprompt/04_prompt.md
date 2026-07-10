@@ -21,7 +21,7 @@
   5. **Playbooks** — root cause, confidence, cited evidence, alternative; banners preserved.
   6. **Deflect & unknown** — what left the pipeline and where.
   7. **Calibration appendix** — F1/precision/recall if `--eval` ran, else "clusters are provisional".
-- Formats: `--format md | html | json | terminal`. Every figure reconciles with `_meta`
+- Formats: `--format terminal | md | json`. Every figure reconciles with `_meta`
   ("84 analyzed" vs "87 extracted, 3 discarded"). If `contains_raw_pii: true`, warn before the cover.
 
 **2. `--eval` (the judge-facing metric)**

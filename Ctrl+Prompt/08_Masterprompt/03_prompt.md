@@ -1,7 +1,7 @@
 # 03_Prompt — P1: `solve` (RCA + resolution playbook)
 
 ## Context (what already exists)
-- `triage` produces ordered incident clusters + effective priority from an approved `taxonomy.yaml`.
+- `triage` produces ordered incident clusters + effective priority from an approved `taxonomy.json`.
 
 ## Attach
 - `02_BRD_PRD_Specs/PRD.md` (rules R6–R7)

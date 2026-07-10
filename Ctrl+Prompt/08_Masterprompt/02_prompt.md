@@ -19,7 +19,7 @@
   - if a labeled subset ≥20 exists: sweep `merge ∈ [0.40..0.85]` step 0.01, maximize F1 →
     `calibration_status: calibrated` (report F1/precision/recall);
   - else: heuristic (histogram elbow) → `calibration_status: heuristic` and print the warning.
-- Gate: emit `taxonomy.draft.yaml`; `agent learn --approve` copies it to `taxonomy.yaml`.
+- Gate: emit `taxonomy.draft.json`; `agent learn --approve` copies it to `taxonomy.json`.
   `--auto-approve` allowed but stamps `calibration_status: unreviewed`.
 
 **2. `triage` (deterministic, no LLM) — rules R1–R6**
@@ -32,7 +32,7 @@
 - R5 effective priority at cluster level → `INFLATED | SUPPRESSED | ALIGNED`. Disable if
   `field_coverage.declared_priority == 0`.
 - R6 RCA queue ordered by `severity_real × ticket_count` (descending) — **not** declared priority.
-- Precondition: an approved `taxonomy.yaml` exists, else abort pointing to the draft.
+- Precondition: an approved `taxonomy.json` exists, else abort pointing to the draft.
 
 **3. Output** — match `cli-output-style.md`: clusters table (TICKETS/DECL./EFFECT./FLAG),
 deflected list, and the calibration footer. `--json` twin.
@@ -46,7 +46,7 @@ deflected list, and the calibration footer. `--json` twin.
   `recommendations` = INFLATED, `email_delivery` flagged cross-source.
 
 ## Validation before 03_prompt
-- [ ] `learn` emits `corpus_profile.json` + `taxonomy.draft.yaml`; gate enforced
+- [ ] `learn` emits `corpus_profile.json` + `taxonomy.draft.json`; gate enforced
 - [ ] `triage` reproduces the 4+2 clustering **without reading `cluster_hint`**
 - [ ] entity veto + weight-sum check + priority flags all work
 - [ ] calibration footer present on the output
