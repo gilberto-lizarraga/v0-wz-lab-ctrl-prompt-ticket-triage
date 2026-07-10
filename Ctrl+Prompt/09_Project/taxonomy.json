@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "locale": "en",
+  "calibration_status": "heuristic",
+  "entities": {
+    "lexicon": [
+      "recommendations",
+      "checkout-service"
+    ]
+  },
+  "subsystems": {
+    "ci_cd/checkout-service": {
+      "signals": [
+        "checkout-service",
+        "deploy",
+        "pipeline",
+        "integration test",
+        "staging",
+        "hang"
+      ]
+    },
+    "api_gateway/recommendations": {
+      "signals": [
+        "recommendations",
+        "502",
+        "endpoint",
+        "bad gateway"
+      ]
+    },
+    "auth/post-renewal": {
+      "signals": [
+        "log in",
+        "login",
+        "renewal",
+        "subscription",
+        "renew",
+        "renews"
+      ]
+    },
+    "email_delivery": {
+      "signals": [
+        "email",
+        "reset",
+        "ses",
+        "bounce",
+        "deliver",
+        "transactional",
+        "mail"
+      ]
+    }
+  },
+  "weights": {
+    "semantic": 0.45,
+    "subsystem": 0.3,
+    "entity": 0.15,
+    "temporal": 0.1
+  },
+  "thresholds": {
+    "merge": 0.3,
+    "temporal_window_days": 14,
+    "stale_age_days": 3
+  },
+  "severity": {
+    "recurrence_multiplier": 2,
+    "stale_penalty": 1,
+    "blast_radius_bonus": 1,
+    "cross_source_bonus": 1,
+    "deflect_penalty": -3
+  },
+  "reviewed_by": "ivan.espitia"
+}

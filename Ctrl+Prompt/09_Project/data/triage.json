@@ -1,0 +1,114 @@
+{
+  "taxonomy_version": 1,
+  "calibration_status": "heuristic",
+  "merge_threshold": 0.3,
+  "reviewed_by": "ivan.espitia",
+  "field_coverage": {
+    "declared_priority": 1.0,
+    "status": 1.0,
+    "reporter": 1.0,
+    "resolution_text": 0.0
+  },
+  "clusters": [
+    {
+      "id": "ci_cd/checkout-service",
+      "subsystem": "ci_cd/checkout-service",
+      "ticket_ids": [
+        "TCK-10231",
+        "TCK-10236",
+        "TCK-10232",
+        "TCK-10241"
+      ],
+      "ticket_count": 4,
+      "confidence": "medium",
+      "has_declared": true,
+      "declared": "P2",
+      "effective": "P1",
+      "severity_real": 11,
+      "recurrence_count": 4,
+      "unique_reporters": 2,
+      "unique_sources": 1,
+      "stale": true,
+      "cross_source": false,
+      "flag": "SUPPRESSED",
+      "rca_eligible": true
+    },
+    {
+      "id": "auth/post-renewal",
+      "subsystem": "auth/post-renewal",
+      "ticket_ids": [
+        "TCK-10235",
+        "TCK-10238",
+        "TCK-10243"
+      ],
+      "ticket_count": 3,
+      "confidence": "medium",
+      "has_declared": true,
+      "declared": "P2",
+      "effective": "P2",
+      "severity_real": 8,
+      "recurrence_count": 3,
+      "unique_reporters": 2,
+      "unique_sources": 1,
+      "stale": false,
+      "cross_source": false,
+      "flag": "SUPPRESSED",
+      "rca_eligible": true
+    },
+    {
+      "id": "api_gateway/recommendations",
+      "subsystem": "api_gateway/recommendations",
+      "ticket_ids": [
+        "TCK-10233",
+        "TCK-10237",
+        "TCK-10242"
+      ],
+      "ticket_count": 3,
+      "confidence": "medium",
+      "has_declared": true,
+      "declared": "P1",
+      "effective": "P2",
+      "severity_real": 7,
+      "recurrence_count": 2,
+      "unique_reporters": 1,
+      "unique_sources": 1,
+      "stale": true,
+      "cross_source": false,
+      "flag": "INFLATED",
+      "rca_eligible": true
+    },
+    {
+      "id": "email_delivery",
+      "subsystem": "email_delivery",
+      "ticket_ids": [
+        "TCK-10234",
+        "TCK-10239",
+        "TCK-10245"
+      ],
+      "ticket_count": 3,
+      "confidence": "high",
+      "has_declared": true,
+      "declared": "P3",
+      "effective": "P3",
+      "severity_real": 4,
+      "recurrence_count": 1,
+      "unique_reporters": 3,
+      "unique_sources": 2,
+      "stale": false,
+      "cross_source": true,
+      "flag": "ALIGNED",
+      "rca_eligible": true
+    }
+  ],
+  "deflected": [
+    {
+      "id": "TCK-10240",
+      "title": "Feature request: dark mode for kids profile screen"
+    },
+    {
+      "id": "TCK-10244",
+      "title": "Can I get a bigger avatar image size option?"
+    }
+  ],
+  "unknown": []
+}

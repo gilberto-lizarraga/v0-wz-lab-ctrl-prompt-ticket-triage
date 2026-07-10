@@ -1,0 +1,13 @@
+{
+  "n_tickets": 15,
+  "field_coverage": {
+    "declared_priority": 1.0,
+    "resolution_text": 0.0
+  },
+  "sources": {},
+  "temporal_span_days": 0,
+  "blind_clusters": 6,
+  "silhouette_score": 0.377,
+  "cross_source_clusters": 1,
+  "recurrence_marker_rate": 0.47
+}

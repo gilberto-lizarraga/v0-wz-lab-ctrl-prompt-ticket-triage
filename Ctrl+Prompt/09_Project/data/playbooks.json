@@ -1,0 +1,110 @@
+{
+  "playbooks": [
+    {
+      "cluster_id": "ci_cd/checkout-service",
+      "root_cause": "Flaky integration test hangs the pipeline instead of failing fast; recurs and is never root-caused because it is deprioritized each time.",
+      "confidence": "medium",
+      "evidence": [
+        "TCK-10231",
+        "TCK-10236",
+        "TCK-10232",
+        "TCK-10241"
+      ],
+      "alternative_hypotheses": [
+        "CI runner exhaustion during build peaks"
+      ],
+      "playbook": [
+        "Add a hard 10-min timeout to the integration-tests step so it fails fast.",
+        "Instrument the step to emit the name of the currently running test.",
+        "Reproduce with --repeat 50 to isolate the flaky test.",
+        "Quarantine the flaky test and open a tracked fix ticket.",
+        "Add a pipeline alert if the step exceeds the timeout again."
+      ],
+      "verified": false,
+      "provenance": {
+        "taxonomy_version": 1,
+        "calibration_status": "heuristic",
+        "merge_threshold": 0.3,
+        "reviewed_by": "ivan.espitia"
+      }
+    },
+    {
+      "cluster_id": "auth/post-renewal",
+      "root_cause": "Login session/token is likely invalidated by the renewal billing webhook before the auth service refreshes it.",
+      "confidence": "medium",
+      "evidence": [
+        "TCK-10235",
+        "TCK-10238",
+        "TCK-10243"
+      ],
+      "alternative_hypotheses": [
+        "Stale entitlement cache after renewal"
+      ],
+      "playbook": [
+        "Trace the renewal webhook → auth token refresh sequence for a failing user.",
+        "Ensure the auth service refreshes/rotates the session on renewal events.",
+        "Add an integration test for the renew → immediate-login path.",
+        "Invalidate the entitlement cache on renewal completion."
+      ],
+      "verified": false,
+      "provenance": {
+        "taxonomy_version": 1,
+        "calibration_status": "heuristic",
+        "merge_threshold": 0.3,
+        "reviewed_by": "ivan.espitia"
+      }
+    },
+    {
+      "cluster_id": "api_gateway/recommendations",
+      "root_cause": "Intermittent 502s on the recommendations endpoint correlate with traffic peaks — likely connection-pool exhaustion or a downstream timeout under load.",
+      "confidence": "medium",
+      "evidence": [
+        "TCK-10233",
+        "TCK-10237",
+        "TCK-10242"
+      ],
+      "alternative_hypotheses": [
+        "Upstream dependency latency spike during peak hours"
+      ],
+      "playbook": [
+        "Check connection-pool saturation and upstream timeouts during 7–9pm peak.",
+        "Add/raise pool limits and set sane client timeouts + retries with backoff.",
+        "Add a circuit breaker to the downstream call.",
+        "Load-test at peak concurrency to confirm the fix."
+      ],
+      "verified": false,
+      "provenance": {
+        "taxonomy_version": 1,
+        "calibration_status": "heuristic",
+        "merge_threshold": 0.3,
+        "reviewed_by": "ivan.espitia"
+      }
+    },
+    {
+      "cluster_id": "email_delivery",
+      "root_cause": "Rising SES bounce rate on transactional emails points to a sending-domain reputation or template issue, not a one-off delay.",
+      "confidence": "high",
+      "evidence": [
+        "TCK-10234",
+        "TCK-10239",
+        "TCK-10245"
+      ],
+      "alternative_hypotheses": [
+        "SPF/DKIM/DMARC misalignment on the sending domain"
+      ],
+      "playbook": [
+        "Review SES bounce/complaint metrics and categorize bounce types.",
+        "Verify SPF/DKIM/DMARC on the sending domain.",
+        "Warm up / segment sending; pause to protect reputation if needed.",
+        "Add alerting on bounce rate crossing 1%."
+      ],
+      "verified": false,
+      "provenance": {
+        "taxonomy_version": 1,
+        "calibration_status": "heuristic",
+        "merge_threshold": 0.3,
+        "reviewed_by": "ivan.espitia"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Core demo runs on the Python standard library only — no install required.
+#
+# Optional, for the production stack described in the master prompt:
+# typer>=0.12            # richer CLI ergonomics
+# boto3>=1.34            # Amazon Bedrock (embeddings + Claude for RCA/playbooks)
+# scikit-learn>=1.4      # agglomerative clustering at scale
+# sentence-transformers  # local embedding fallback when Bedrock is unavailable
+# PyYAML>=6              # YAML descriptors / taxonomy (auto-detected if present)

@@ -1,0 +1,212 @@
+{
+  "_meta": {
+    "connection": "ticket-sample",
+    "extracted_at": "2026-07-10T21:40:23.821918+00:00",
+    "n_extracted": 15,
+    "n_valid": 15,
+    "n_discarded": 0,
+    "discard_reasons": {},
+    "field_coverage": {
+      "declared_priority": 1.0,
+      "status": 1.0,
+      "reporter": 1.0,
+      "resolution_text": 0.0
+    },
+    "sources": {
+      "Jira": 4,
+      "PagerDuty": 4,
+      "Zendesk": 7
+    },
+    "priority_vocabulary": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "unmapped_fields": [],
+    "temporal_span_days": 5,
+    "pii_redacted": true
+  },
+  "tickets": [
+    {
+      "id": "TCK-10231",
+      "title": "Deploy pipeline stuck on staging for checkout-service",
+      "body": "Latest deploy to staging hangs at the 'run integration tests' step, no error output for 20+ minutes.",
+      "created_at": "2026-06-28T09:14:00Z",
+      "source": "Jira",
+      "reporter": "content-team-bot",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10232",
+      "title": "checkout-service deploy hung again",
+      "body": "Same as last week — staging deploy for checkout-service froze on integration tests, had to manually cancel and retry.",
+      "created_at": "2026-06-29T11:02:00Z",
+      "source": "Jira",
+      "reporter": "release-bot",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10233",
+      "title": "Recommendations API returning 502s intermittently",
+      "body": "About 3% of requests to /api/v2/recommendations are returning 502 Bad Gateway, no clear pattern.",
+      "created_at": "2026-06-29T14:30:00Z",
+      "source": "PagerDuty",
+      "reporter": "on-call-devops",
+      "declared_priority": 0,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10234",
+      "title": "Password reset email not arriving for some users",
+      "body": "Handful of users on the streaming app report password reset emails never arrive; SES logs show delivery.",
+      "created_at": "2026-06-30T08:45:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-marcus",
+      "declared_priority": 2,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10235",
+      "title": "Can't log in after subscription renewal",
+      "body": "User says login fails right after their annual subscription renewed; error is generic 'something went wrong'.",
+      "created_at": "2026-06-30T10:12:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-priya",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10236",
+      "title": "Staging deploy for checkout-service timing out (3rd time this week)",
+      "body": "Deploy pipeline hangs again on integration test step. This is becoming a pattern.",
+      "created_at": "2026-07-01T09:00:00Z",
+      "source": "Jira",
+      "reporter": "release-bot",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10237",
+      "title": "Recommendations API 502 spike during peak hours",
+      "body": "502 rate on recommendations endpoint jumped to 8% between 7-9pm, correlates with traffic peak.",
+      "created_at": "2026-07-01T20:15:00Z",
+      "source": "PagerDuty",
+      "reporter": "on-call-devops",
+      "declared_priority": 0,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10238",
+      "title": "Another user can't log in post-renewal",
+      "body": "Second report this week of login failure right after subscription renews.",
+      "created_at": "2026-07-01T13:40:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-marcus",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10239",
+      "title": "Password reset emails delayed 10+ minutes",
+      "body": "Several users report the reset email eventually arrives but takes over 10 minutes, causing them to think it failed.",
+      "created_at": "2026-07-02T09:20:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-priya",
+      "declared_priority": 2,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10240",
+      "title": "Feature request: dark mode for kids profile screen",
+      "body": "Parent requests a dark mode toggle for the kids profile picker screen.",
+      "created_at": "2026-07-02T11:00:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-marcus",
+      "declared_priority": 3,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10241",
+      "title": "checkout-service staging deploy hung — 4th occurrence",
+      "body": "Same integration test hang. Team suspects a flaky test but hasn't had time to investigate — always urgent, never gets root-caused.",
+      "created_at": "2026-07-02T15:10:00Z",
+      "source": "Jira",
+      "reporter": "release-bot",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10242",
+      "title": "Recommendations API 502s continue",
+      "body": "Still seeing intermittent 502s on recommendations endpoint. No RCA yet — deprioritized twice due to other fires.",
+      "created_at": "2026-07-03T08:55:00Z",
+      "source": "PagerDuty",
+      "reporter": "on-call-devops",
+      "declared_priority": 0,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10243",
+      "title": "Third login failure after renewal report this month",
+      "body": "Pattern continuing — three separate users this month hit login failure immediately after their subscription auto-renews.",
+      "created_at": "2026-07-03T10:30:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-priya",
+      "declared_priority": 1,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10244",
+      "title": "Can I get a bigger avatar image size option?",
+      "body": "User wants larger profile avatar upload size limit.",
+      "created_at": "2026-07-03T12:00:00Z",
+      "source": "Zendesk",
+      "reporter": "support-agent-marcus",
+      "declared_priority": 3,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    },
+    {
+      "id": "TCK-10245",
+      "title": "SES bounce rate creeping up on transactional emails",
+      "body": "SES dashboard shows bounce rate up from 0.3% to 1.1% over the last 2 weeks, mostly password reset and welcome emails.",
+      "created_at": "2026-07-03T16:45:00Z",
+      "source": "PagerDuty",
+      "reporter": "on-call-devops",
+      "declared_priority": 2,
+      "status": "open",
+      "resolution_text": null,
+      "raw_extra": {}
+    }
+  ]
+}

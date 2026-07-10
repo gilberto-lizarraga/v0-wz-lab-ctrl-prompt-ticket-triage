@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy to connections.json (or connections.yaml) and chmod 600. Secrets are referenced by ENV VAR NAME, never by value. Never commit real secrets.",
+  "version": 1,
+  "connections": [
+    {
+      "name": "jira-sre",
+      "descriptor": "descriptors/jira_rest.yaml",
+      "base_url": "${JIRA_BASE_URL}",
+      "auth": {
+        "method": "basic",
+        "user_env": "JIRA_EMAIL",
+        "token_env": "JIRA_API_TOKEN"
+      }
+    }
+  ]
+}

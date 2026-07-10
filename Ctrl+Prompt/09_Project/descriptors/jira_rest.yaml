@@ -1,0 +1,45 @@
+# descriptors/jira_rest.yaml — live Jira source (reference for the live path).
+# The engine never reads this; only `connect` does. Onboarding a source = a descriptor, not code.
+version: 1
+kind: rest
+
+transport:
+  list_path: /rest/api/3/search
+  method: GET
+  query:
+    jql: "project = SRE AND created >= -90d"
+  record_selector: "$.issues[*]"
+
+pagination:
+  style: offset
+  page_size_param: maxResults
+  page_size: 100
+
+# Map SOURCE fields → CANONICAL fields (left = canonical, fixed).
+mapping:
+  id:                "$.key"
+  title:             "$.fields.summary"
+  body:              "$.fields.description"
+  created_at:        "$.fields.created"
+  source:            "= Jira"
+  reporter:          "$.fields.reporter.displayName"
+  declared_priority: "$.fields.priority.name"
+  status:            "$.fields.status.name"
+  resolution_text:   "$.fields.resolution.description"
+
+# Collapse Jira vocabulary → canonical scales.
+normalize:
+  declared_priority:   # → integer 0..4 (0 = most severe)
+    P1: 0
+    P2: 1
+    P3: 2
+    P4: 3
+    default: 2
+  status:
+    Open: open
+    "In Progress": in_progress
+    Done: resolved
+    Closed: resolved
+    default: open
+
+capture_unmapped: raw_extra
