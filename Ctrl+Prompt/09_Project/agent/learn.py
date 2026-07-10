@@ -67,8 +67,9 @@ def run(args) -> int:
             print(f"No draft to approve at {src}. Run `learn <canonical.json>` first.")
             return 2
         tax = read_json(src)
-        tax["calibration_status"] = "unreviewed" if args.auto_approve else tax.get(
-            "calibration_status", "heuristic")
+        status = tax.get("calibration_status", "heuristic")
+        if args.auto_approve and status != "calibrated":
+            tax["calibration_status"] = "unreviewed"     # keep calibrated if it was
         if not args.auto_approve:
             tax.setdefault("reviewed_by", os.environ.get("USER", "human"))
         save_taxonomy(tax, approved=True)

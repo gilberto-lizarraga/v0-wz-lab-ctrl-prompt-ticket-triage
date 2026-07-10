@@ -1,8 +1,8 @@
 {
   "taxonomy_version": 1,
-  "calibration_status": "heuristic",
+  "calibration_status": "unreviewed",
   "merge_threshold": 0.3,
-  "reviewed_by": "ivan.espitia",
+  "reviewed_by": null,
   "field_coverage": {
     "declared_priority": 1.0,
     "status": 1.0,

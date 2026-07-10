@@ -1,10 +1,10 @@
 # Disney Agent Support Tickets — Incident Report
 
 ## Provenance
-Source:      ticket-sample · extracted 2026-07-10T21:38:31.456726+00:00
+Source:      ticket-sample · extracted 2026-07-10T21:59:38.829880+00:00
 Volume:      15 extracted → 15 valid (0 discarded)
-Calibration: heuristic · threshold 0.3 · taxonomy v1 · reviewed_by: ivan.espitia
-PII:         redacted
+Calibration: calibrated · threshold 0.2 · taxonomy v1 · reviewed_by: None
+PII:         not redacted
 
 ## Executive summary
 13 actionable tickets collapsed into 4 root-cause incidents; 2 deflected to product.
@@ -40,4 +40,4 @@ PII:         redacted
   deflect  TCK-10244  Can I get a bigger avatar image size option?
 
 ## Calibration appendix
-  Threshold is heuristic — clusters are PROVISIONAL. Run `learn --eval` to report F1 against labels.
+  Calibrated via --eval against cluster_hint labels (see learn output for F1).

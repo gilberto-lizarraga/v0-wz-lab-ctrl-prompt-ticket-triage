@@ -72,6 +72,33 @@ def canonicalize(raw: dict) -> tuple[dict | None, str | None]:
     return ticket, None
 
 
+_VALID_STATUS = {"open", "in_progress", "resolved"}
+
+
+def finalize_canonical(mapped: dict) -> tuple[dict | None, str | None]:
+    """Validate an already-mapped record (from a descriptor) into a canonical ticket."""
+    ticket = {
+        "id": mapped.get("id"),
+        "title": mapped.get("title") or "",
+        "body": mapped.get("body") or "",
+        "created_at": mapped.get("created_at"),
+        "source": mapped.get("source"),
+        "reporter": mapped.get("reporter"),
+        "declared_priority": mapped.get("declared_priority")
+        if isinstance(mapped.get("declared_priority"), int) else None,
+        "status": mapped.get("status") if mapped.get("status") in _VALID_STATUS
+        else normalize_status(mapped.get("status")),
+        "resolution_text": mapped.get("resolution_text"),
+        "raw_extra": mapped.get("raw_extra", {}),
+    }
+    for field in REQUIRED:
+        if not ticket.get(field):
+            return None, f"missing_{field}"
+    if parse_ts(ticket["created_at"]) is None:
+        return None, "missing_created_at"
+    return ticket, None
+
+
 _PII_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 _PII_TOKEN = re.compile(r"\b[A-Za-z0-9]{20,}\b")
 

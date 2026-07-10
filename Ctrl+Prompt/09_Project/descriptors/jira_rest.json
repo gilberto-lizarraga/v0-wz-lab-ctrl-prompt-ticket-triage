@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "rest",
+  "transport": {
+    "list_path": "/rest/api/3/search",
+    "method": "GET",
+    "query": {
+      "jql": "project = ${JIRA_PROJECT:-SRE} AND created >= -${SINCE:-90d}",
+      "fields": "summary,description,created,priority,status,reporter,resolution"
+    },
+    "record_selector": "$.issues"
+  },
+  "pagination": {
+    "style": "offset",
+    "offset_param": "startAt",
+    "page_size_param": "maxResults",
+    "page_size": 100,
+    "total_path": "$.total"
+  },
+  "mapping": {
+    "id": "$.key",
+    "title": "$.fields.summary",
+    "body": "$.fields.description || $.fields.summary",
+    "created_at": "$.fields.created",
+    "source": "= Jira",
+    "reporter": "$.fields.reporter.displayName",
+    "declared_priority": "$.fields.priority.name",
+    "status": "$.fields.status.name",
+    "resolution_text": "$.fields.resolution.description"
+  },
+  "normalize": {
+    "declared_priority": {"P1": 0, "P2": 1, "P3": 2, "P4": 3,
+                          "highest": 0, "high": 1, "medium": 2, "low": 3, "default": 2},
+    "status": {"open": "open", "to do": "open", "in progress": "in_progress",
+               "done": "resolved", "closed": "resolved", "default": "open"}
+  },
+  "capture_unmapped": "raw_extra"
+}

@@ -1,0 +1,257 @@
+{
+  "_meta": {
+    "connection": "pod2-csv",
+    "extracted_at": "2026-07-10T21:59:38.749140+00:00",
+    "n_extracted": 15,
+    "n_valid": 15,
+    "n_discarded": 0,
+    "discard_reasons": {},
+    "field_coverage": {
+      "declared_priority": 1.0,
+      "status": 1.0,
+      "reporter": 0.0,
+      "resolution_text": 0.0
+    },
+    "sources": {
+      "POD2-CSV": 15
+    },
+    "priority_vocabulary": [
+      "0",
+      "1",
+      "2"
+    ],
+    "unmapped_fields": [
+      "Issues Bundled",
+      "Rank"
+    ],
+    "temporal_span_days": 119,
+    "pii_redacted": false
+  },
+  "tickets": [
+    {
+      "id": "POD2-255",
+      "title": "Quantity Control button & Accordion behavior in Config Steps",
+      "body": "Preserve expand/collapse state when navigating back to Step 1; fix (+/-) button active/inactive coloring in Step 4; fix quantity text color to black when set to 1 (currently shows gray); ensure only the first accordion section is expanded by default in Steps 3-5.",
+      "created_at": "2026-05-21",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "1",
+        "Issues Bundled": "4"
+      }
+    },
+    {
+      "id": "POD2-220",
+      "title": "Labware/Additional Containers expand-collapse artifact",
+      "body": "Remove the stray blue rectangle rendering at the top/bottom of the container when Labware and Additional Containers sections are expanded/collapsed; verify fix holds across both the Create-New-Configuration and Catalog entry flows.",
+      "created_at": "2026-05-05",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "2",
+        "Issues Bundled": "2"
+      }
+    },
+    {
+      "id": "POD2-415",
+      "title": "Get Configuration query accepts invalid 'status' values",
+      "body": "Add server-side validation so the status query param only accepts unlinked, inprogress, quoted (and comma-separated combinations); return a proper error for any other value instead of silently returning all configurations.",
+      "created_at": "2026-06-30",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "3",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-365",
+      "title": "'facilitiesSpecs' allows empty values on Create/Update",
+      "body": "Add validation to reject empty values in facilitiesSpecs fields on both Create and Update product requests.",
+      "created_at": "2026-06-17",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "4",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-159",
+      "title": "Update request returns 200 on malformed body",
+      "body": "Add request-body validation on the Update Configuration endpoint so unrecognized/incorrect keys return a 400 Validation error instead of a silent 200 with unchanged data.",
+      "created_at": "2026-03-27",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "5",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-114",
+      "title": "Previous button missing in Get Recommendation flow",
+      "body": "Render the Previous button starting from the second question screen so users can navigate back and revise answers; keep Next button's disabled/enabled logic intact.",
+      "created_at": "2026-03-03",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 0,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "6",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-254",
+      "title": "UI mismatches across Cryo Config Steps 2-5",
+      "body": "Step 2: fix padding around 'Run Time Licenses' text, fix Alerts checkbox text alignment/typo, change checkbox font color to gray, remove stray separator line. Step 3: wrap 'Power/Electrical' text to 1 line, rename 'Structural components' section to 'Adapters' per Figma, remove trailing separator when collapsed. Step 4: fix checkbox font color, remove trailing separator. Step 5: rename second section to match Figma ('Adapters'), fix checkbox font color, un-invert the Operational/Performance Qualification checkboxes, remove trailing separator. Also restore 3D Configurator panel to cover half the screen in Steps 2-4.",
+      "created_at": "2026-05-21",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "7",
+        "Issues Bundled": "14"
+      }
+    },
+    {
+      "id": "POD2-227",
+      "title": "Button state/color issues + carryover from POD2-167",
+      "body": "Fix 'Configure this model' button background/text color, active/pressed states, and text sizing to match Figma; correct enable/disable logic so only CryoArc's button is enabled appropriately; align header text below Product Configuration; increase text size to match Figma. Carryover fixes: correct header 'Online' text color, keep model descriptions to one line in Model Selection, apply bold/semibold emphasis to model titles, fix 'View products' button text, and correct header/nav bar height/spacing.",
+      "created_at": "2026-05-07",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "8",
+        "Issues Bundled": "10"
+      }
+    },
+    {
+      "id": "POD2-191",
+      "title": "Padding issues hiding Cryobox config data",
+      "body": "Fix layout/padding so the selected configuration option, samples-per-box value, rack type info, and cryoboxes-needed value are all correctly positioned and fully visible on the card.",
+      "created_at": "2026-04-19",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "9",
+        "Issues Bundled": "4"
+      }
+    },
+    {
+      "id": "POD2-301",
+      "title": "Info icon size/color mismatch",
+      "body": "Resize the Information icon to match Figma dimensions and change its color from green to gray, consistently across the Catalog and 3D Panel entry points.",
+      "created_at": "2026-06-02",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "10",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-190",
+      "title": "Storage Capacity section not reflecting usage",
+      "body": "Fix data binding so the Storage Capacity section updates its usage value, progress bar, and percentage correctly after changes.",
+      "created_at": "2026-04-17",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "11",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-189",
+      "title": "Edit/Delete buttons missing on Labware cards",
+      "body": "Add the missing Edit and Delete buttons to all Labware cards so users can manage entries.",
+      "created_at": "2026-04-17",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 1,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "12",
+        "Issues Bundled": "1"
+      }
+    },
+    {
+      "id": "POD2-304",
+      "title": "Admin Dashboard UI inconsistencies",
+      "body": "Wrap DAU/WAU/MAU and Metric tooltip text to 2 lines instead of 1; resize DatePicker panel to match its button; align activity table rows with column headers; fix Date Filter button to a fixed size so it doesn't shift the Export button; wrap 'time period' text in the Configs Created metric card to 2 lines; correct the Configs Created chart tooltip shape and content (show 'Configs linked'/'Configs unlinked' values, remove month text); make the dashboard header/top nav sticky on scroll.",
+      "created_at": "2026-06-03",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 2,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "13",
+        "Issues Bundled": "9"
+      }
+    },
+    {
+      "id": "POD2-219",
+      "title": "UI mismatches in labware/containers",
+      "body": "Fix Labware item display styling; correct header fonts/styles and separator line color between Labware and Additional Containers sections; align Add button UI with Figma; fix empty-state panel styling for 'No labware configured' message; correct the disabled-state arrow color on the Next button.",
+      "created_at": "2026-05-05",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 2,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "14",
+        "Issues Bundled": "5"
+      }
+    },
+    {
+      "id": "POD2-344",
+      "title": "Currency modal/summary screen padding & UI",
+      "body": "Fix alignment of 'Optional sections not included' text below the last summary section; add the missing USD exchange-rate conversion display when a non-USD currency is selected; correct currency abbreviation text color (should be black, not gray) and fix font to match design mocks.",
+      "created_at": "2026-06-12",
+      "source": "POD2-CSV",
+      "reporter": null,
+      "declared_priority": 2,
+      "status": "resolved",
+      "resolution_text": null,
+      "raw_extra": {
+        "Rank": "15",
+        "Issues Bundled": "3"
+      }
+    }
+  ]
+}

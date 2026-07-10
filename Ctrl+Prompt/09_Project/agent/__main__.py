@@ -7,7 +7,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from . import __version__, connect, learn, report, solve, triage
+from . import __version__, connect, learn, pipeline, report, solve, triage
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,6 +15,18 @@ def build_parser() -> argparse.ArgumentParser:
                                 description="Disney Agent Support Tickets — CLI triage agent")
     p.add_argument("--version", action="version", version=f"agent {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
+
+    run = sub.add_parser("run", help="ONE command: connect → learn → triage → solve → report")
+    run.add_argument("--mock", help="offline: a canonical/raw JSON file")
+    run.add_argument("--source", help="live: a connection name from connections.json")
+    run.add_argument("--project", help="label for the mock source (default: filename)")
+    run.add_argument("--since", help="live time window, e.g. 90d")
+    run.add_argument("--redact", action="store_true", help="mask PII on real sources")
+    run.add_argument("--eval", metavar="LABELED_JSON", help="calibrate + report F1")
+    run.add_argument("--fresh", action="store_true", help="re-propose + re-approve taxonomy")
+    run.add_argument("--format", choices=["terminal", "md", "json"], default="terminal")
+    run.add_argument("--out", help="write the report to a file")
+    run.set_defaults(func=pipeline.run)
 
     c = sub.add_parser("connect", help="Phase 0: collect + normalize a source → canonical JSON")
     c.add_argument("--mock", help="load a canonical/raw JSON offline (demo path)")

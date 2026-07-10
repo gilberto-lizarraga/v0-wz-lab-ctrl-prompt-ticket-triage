@@ -2,10 +2,16 @@
   "n_tickets": 15,
   "field_coverage": {
     "declared_priority": 1.0,
+    "status": 1.0,
+    "reporter": 1.0,
     "resolution_text": 0.0
   },
-  "sources": {},
-  "temporal_span_days": 0,
+  "sources": {
+    "Jira": 4,
+    "PagerDuty": 4,
+    "Zendesk": 7
+  },
+  "temporal_span_days": 5,
   "blind_clusters": 6,
   "silhouette_score": 0.377,
   "cross_source_clusters": 1,

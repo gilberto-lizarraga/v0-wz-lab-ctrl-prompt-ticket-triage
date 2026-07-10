@@ -5,7 +5,8 @@ and quick start, see [`README.md`](./README.md).
 
 - **Invocation:** `python3 -m agent <command> [options]`
 - **Runtime:** Python 3.11+, standard library only (no install).
-- **Pipeline order:** `connect → learn → learn --approve → triage → solve → report`
+- **Simplest path:** `python3 -m agent run --mock data/ticket-sample.json` (does everything).
+- **Manual pipeline order:** `connect → learn → learn --approve → triage → solve → report`
   (`learn --eval` is optional, for calibration).
 
 ---
@@ -48,13 +49,101 @@ python3 -m agent --help
 python3 -m agent <command> --help
 ```
 
+**Shortcut:** a launcher at `bin/agent` makes the commands first-class — `./bin/agent connect …`.
+Install it globally with `ln -s "$(pwd)/bin/agent" /usr/local/bin/agent`, then just `agent connect …`.
+
 | Command | Phase | One-liner |
 |---|---|---|
+| `run`     | ALL | One command: connect → learn → approve → triage → solve → report |
 | `connect` | Phase 0 | Collect + normalize a source into canonical JSON |
 | `learn`   | OBSERVE + ADAPT | Profile the corpus, propose a taxonomy, calibrate |
 | `triage`  | ACT | Cluster tickets + compute effective priority (deterministic) |
 | `solve`   | ACT | Root cause + evidence + resolution playbook (LLM step) |
 | `report`  | REPORT | Consolidate everything into a readable document |
+
+---
+
+## Quick reference — all cases
+
+Every case, its command, a copy-paste example, and what you get back.
+
+| Goal | Command | Example | Result |
+|---|---|---|---|
+| **Do everything (offline demo)** | `run --mock` | `python3 -m agent run --mock data/ticket-sample.json --redact` | Full pipeline; prints triage table + playbooks + report. **4 incidents · 2 deflect**. |
+| **Do everything (live Jira)** | `run --source` | `python3 -m agent run --source jira-sre --redact` | Same, on live Jira data pulled via the descriptor. |
+| **Do everything (CSV export)** | `run --source` | `python3 -m agent run --source pod2-csv` | Same, reading a CSV file source. |
+| **Connect: offline mock** | `connect --mock` | `python3 -m agent connect --mock data/ticket-sample.json --redact --project ticket-sample` | `data/ticket-sample.canonical.json` + `_meta`; `cluster_hint` dropped. |
+| **Connect: test Jira auth** | `connect --test` | `python3 -m agent connect --test jira-sre` | Real auth + reachability check. Exit 0 = OK, 1 = failed. |
+| **Connect: inspect a source** | `connect --discover` | `python3 -m agent connect --discover jira-sre` | Per-field coverage + normalized priority vocabulary; flags unmapped fields. |
+| **Collect: live Jira (REST)** | `connect --project` | `python3 -m agent connect --project jira-sre --since 90d --redact` | Pulls issues via HTTP, paginates, normalizes → canonical JSON. |
+| **Collect: CSV / JSON export** | `connect --project` | `python3 -m agent connect --project pod2-csv` | Reads the file per `jira_csv.json` → canonical JSON. |
+| **Learn: profile + propose** | `learn <json>` | `python3 -m agent learn data/ticket-sample.canonical.json` | `corpus_profile.json` + `taxonomy.draft.json`. Nothing applied yet. |
+| **Learn: approve (human gate)** | `learn --approve` | `python3 -m agent learn --approve` | Promotes draft → `taxonomy.json` (the only config ACT reads). |
+| **Learn: calibrate + F1** | `learn --eval` | `python3 -m agent learn --eval data/ticket-sample.json` | Sweeps threshold via `cluster_hint`; reports **F1**; status → `calibrated`. |
+| **Triage: cluster + priority** | `triage <json>` | `python3 -m agent triage data/ticket-sample.canonical.json` | Clusters + `INFLATED`/`SUPPRESSED`/`ALIGNED` table + RCA queue → `triage.json`. |
+| **Solve: root cause + playbook** | `solve` | `python3 -m agent solve` | Per cluster: root cause, cited evidence, alt hypothesis, numbered playbook → `playbooks.json`. |
+| **Report: terminal** | `report` | `python3 -m agent report data/ticket-sample.canonical.json` | Provenance + 80/20 summary + incident table + gaps + playbooks. |
+| **Report: markdown file** | `report --format md` | `python3 -m agent report data/ticket-sample.canonical.json --format md --out data/report.md` | Writes `data/report.md`. |
+| **Report: JSON (for pipelines)** | `report --format json` | `python3 -m agent report data/ticket-sample.canonical.json --format json` | Machine-readable `{meta, triage, playbooks}`. |
+
+**Triage result on the sample** (what "and result" looks like):
+
+```
+CLUSTERS (4 incidents · 2 deflect · 0 unknown)
+
+  ID                               TICKETS  DECL.  EFFECT.  FLAG
+  ci_cd/checkout-service                 4     P2       P1  SUPPRESSED
+  auth/post-renewal                      3     P2       P2  SUPPRESSED
+  api_gateway/recommendations            3     P1       P2  INFLATED
+  email_delivery                         3     P3       P3  ALIGNED  (cross-source)
+
+DEFLECTED (2)
+  TCK-10240  dark mode for kids profile   → product backlog
+  TCK-10244  bigger avatar image size     → product backlog
+
+  calibration: heuristic · taxonomy v1 · merge 0.3 · reviewed_by: <you>
+```
+
+Reading it: `checkout-service` is a P2 that behaves like a P1 (recurs 4× → **SUPPRESSED**);
+`recommendations` is a P1 nobody attends (**INFLATED**); `email_delivery` spans two sources
+(**cross-source**). 13 actionable tickets → 4 root causes, 2 deflected = the 80/20 as a number.
+
+---
+
+## `run`
+
+The simplest way to use the tool: one command runs the entire pipeline and prints the triage
+table, the playbooks, and the report. Individual commands are only needed to inspect a stage.
+
+```bash
+python3 -m agent run (--mock FILE | --source NAME) [--project NAME] [--since WINDOW]
+                     [--redact] [--eval LABELED_JSON] [--fresh]
+                     [--format terminal|md|json] [--out FILE]
+```
+
+| Option | Description |
+|---|---|
+| `--mock FILE` | Offline: a canonical/raw JSON file (the demo path). |
+| `--source NAME` | Live: a connection name from `connections.json` (Jira REST, CSV, …). |
+| `--project NAME` | Label for a mock source (default: filename). |
+| `--since WINDOW` | Live time window, e.g. `90d`. |
+| `--redact` | Mask PII on real sources. |
+| `--eval LABELED_JSON` | Calibrate the merge threshold and report F1. |
+| `--fresh` | Re-propose + re-approve the taxonomy (ignore an existing `taxonomy.json`). |
+| `--format`, `--out` | Passed through to the final report. |
+
+**The gate under `run`:** if `taxonomy.json` already exists it is reused; otherwise the proposed
+draft is **auto-approved for this run** (stamped `unreviewed`, or `calibrated` if `--eval` ran).
+To review the taxonomy by hand instead, run the manual steps and use `learn --approve`.
+
+**Examples:**
+```bash
+python3 -m agent run --mock data/ticket-sample.json --redact
+python3 -m agent run --source jira-sre --redact
+python3 -m agent run --source pod2-csv
+python3 -m agent run --mock data/ticket-sample.json --eval data/ticket-sample.json
+python3 -m agent run --mock data/ticket-sample.json --format md --out data/report.md
+```
 
 ---
 
@@ -92,8 +181,50 @@ connect: 15 → 15 valid (0 discarded)
 **Output:** `data/<project>.canonical.json` with `_meta` (extraction counts, field coverage,
 sources, priority vocabulary, unmapped fields, temporal span, PII flag) + `tickets[]`.
 
-> Live extraction (Jira) is descriptor-driven via `descriptors/jira_rest.yaml` and
-> `connections.json`; the transport layer is scaffolded (see README "Going live with Jira").
+### Live sources (real, implemented)
+
+Live extraction is driven by `connections.json` + a descriptor. Two kinds work today:
+
+- **REST** (`descriptors/jira_rest.json`): real HTTP via `urllib`, HTTP Basic/Bearer auth,
+  offset pagination, field mapping + priority/status normalization. Jira Cloud is preconfigured.
+- **File** (`descriptors/jira_csv.json`): CSV / JSON / NDJSON exports, no network or auth.
+
+```bash
+# Jira (export secrets by NAME first — see Environment variables)
+python3 -m agent connect --test jira-sre        # real auth + reachability check
+python3 -m agent connect --discover jira-sre    # sample fields + priority vocabulary
+python3 -m agent connect --project jira-sre --since 90d --redact
+
+# CSV export (works offline)
+python3 -m agent connect --project pod2-csv
+```
+
+`--test` returns exit 0 on success, 1 on failure. `--discover` prints per-field coverage and the
+normalized priority vocabulary, flagging unmapped fields (they land in `raw_extra`, never dropped).
+
+**Onboarding a new tool** (Zendesk, PagerDuty, in-house): copy a descriptor, edit `list_path`,
+`record_selector`, `pagination`, and the `mapping` / `normalize` tables, add a `connections.json`
+entry, and point `--project`/`--source` at it. No code change.
+
+### Multiple Jira accounts / companies
+
+Each `connections.json` entry is one account/company — its own `base_url`, its own credential
+env vars, and its own project. Specify the project in one of two ways:
+
+| Where | How to set the project | Example connection field |
+|---|---|---|
+| `query.jql` | Full JQL override (most explicit) | `"query": {"jql": "project = OPS AND created >= -30d"}` |
+| `vars` | Fill descriptor placeholders `${JIRA_PROJECT}`, `${SINCE}` | `"vars": {"JIRA_PROJECT": "SUPPORT", "SINCE": "60d"}` |
+
+```bash
+export ACME_JIRA_EMAIL=you@acme.com  ACME_JIRA_TOKEN=<token>     # per-company credentials
+python3 -m agent connect --test acme-jira        # prints resolved URL + JQL, then checks auth
+python3 -m agent run --source acme-jira --redact  # full pipeline on that company's project
+```
+
+`${VAR}` lookup order: **environment → connection `vars` → `:-default`**. Secrets stay in the
+environment (never in `connections.json`); non-secret values like the project live in `vars`.
+See the preconfigured `jira-sre`, `acme-jira`, `globex-jira` connections for working templates.
 
 ---
 
@@ -289,8 +420,11 @@ Secrets are never written to the canonical JSON, the report, or logs.
 
 | Symptom | Cause / Fix |
 |---|---|
-| `No approved taxonomy.json` | Run `learn <canonical.json>` then `learn --approve`. |
-| `connect` prints "Live extraction is scaffolded" | You ran `connect` without `--mock` and without live config. Use `--mock data/ticket-sample.json`. |
+| `No approved taxonomy.json` | Run `learn <canonical.json>` then `learn --approve` — or just use `run`, which handles the gate. |
+| `connect` asks for a connection name | You ran the live path without `--project`. Use `--project jira-sre` (a name in `connections.json`) or `--mock <file>`. |
+| `Auth failed (401/403)` | Check `JIRA_EMAIL` / `JIRA_API_TOKEN` are exported (by name) and the token is valid. |
+| `Environment variable X is not set` | A `${X}` in `connections.json`/descriptor has no value — export it or add a `:-default`. |
+| `UNKNOWN > 30%` on a new source | The taxonomy is tuned for another corpus. Run `learn` on this source to propose a fitting taxonomy. |
 | `FATAL: taxonomy weights must sum to 1.0` | Edit `taxonomy.json` so `weights` sum to exactly 1.0. |
 | `learn --eval` reports F1 = 1.0 | The taxonomy subsystems align 1:1 with the gold clusters. For a conservative number, calibrate on semantic-only similarity (see README caveats). |
 | All playbooks show `unverified` | Expected on the sample — there is no `resolution_text` to learn from. |
@@ -303,10 +437,13 @@ Secrets are never written to the canonical JSON, the report, or logs.
 ```bash
 cd agent-support-tickets
 
-# One shot:
+# Simplest — one command does everything:
+python3 -m agent run --mock data/ticket-sample.json --redact
+
+# Or the scripted demo:
 ./run_demo.sh
 
-# Or manually:
+# Or fully manual, stage by stage:
 python3 -m agent connect --mock data/ticket-sample.json --redact --project ticket-sample
 python3 -m agent learn   data/ticket-sample.canonical.json
 python3 -m agent learn   --approve

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# `agent` launcher — makes connect / learn / triage / solve first-class shell commands.
+# Runs from the project root so data/, descriptors/ and connections.json resolve.
+#
+# Install (optional):  ln -s "$(pwd)/bin/agent" /usr/local/bin/agent
+# Then:                agent connect --test acme-jira
+set -e
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+exec python3 -m agent "$@"

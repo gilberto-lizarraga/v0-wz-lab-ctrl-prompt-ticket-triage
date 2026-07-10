@@ -1,7 +1,7 @@
 {
   "version": 1,
   "locale": "en",
-  "calibration_status": "heuristic",
+  "calibration_status": "unreviewed",
   "entities": {
     "lexicon": [
       "recommendations",
@@ -66,6 +66,5 @@
     "blast_radius_bonus": 1,
     "cross_source_bonus": 1,
     "deflect_penalty": -3
-  },
-  "reviewed_by": "ivan.espitia"
+  }
 }

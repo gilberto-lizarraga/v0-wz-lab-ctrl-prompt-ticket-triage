@@ -1,0 +1,36 @@
+{
+  "_comment": "chmod 600 this file. Secrets are referenced by ENV VAR NAME only, never by value. Each connection is an independent account/company: its own base_url, its own token env var, and its own Jira project via the 'query' override.",
+  "version": 1,
+  "connections": [
+    {
+      "name": "jira-sre",
+      "descriptor": "descriptors/jira_rest.json",
+      "base_url": "${JIRA_BASE_URL}",
+      "auth": {"method": "basic", "user_env": "JIRA_EMAIL", "token_env": "JIRA_API_TOKEN"},
+      "vars": {"JIRA_PROJECT": "SRE", "SINCE": "90d"}
+    },
+
+    {
+      "name": "acme-jira",
+      "descriptor": "descriptors/jira_rest.json",
+      "base_url": "https://acme.atlassian.net",
+      "auth": {"method": "basic", "user_env": "ACME_JIRA_EMAIL", "token_env": "ACME_JIRA_TOKEN"},
+      "query": {"jql": "project = OPS AND created >= -30d ORDER BY created DESC"}
+    },
+
+    {
+      "name": "globex-jira",
+      "descriptor": "descriptors/jira_rest.json",
+      "base_url": "https://globex.atlassian.net",
+      "auth": {"method": "basic", "user_env": "GLOBEX_JIRA_EMAIL", "token_env": "GLOBEX_JIRA_TOKEN"},
+      "vars": {"JIRA_PROJECT": "SUPPORT", "SINCE": "60d"}
+    },
+
+    {
+      "name": "pod2-csv",
+      "descriptor": "descriptors/jira_csv.json",
+      "path": "${CSV_PATH:-../POD2_Bugs_Gilberto_Lizarraga.csv}",
+      "auth": {"method": "none"}
+    }
+  ]
+}

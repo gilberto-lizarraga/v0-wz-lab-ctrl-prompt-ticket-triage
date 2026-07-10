@@ -13,40 +13,27 @@ priority, and prints an **auditable resolution playbook**.
 - **Python 3.11+**. That's it — the demo uses the **standard library only** (no `pip install`).
 - Optional production upgrades in `requirements.txt` (Typer, Bedrock/boto3, scikit-learn, PyYAML).
 
-## Quick start
+## Quick start — one command
 
 ```bash
 cd agent-support-tickets
-./run_demo.sh              # end-to-end on the 15-ticket sample, offline
+python3 -m agent run --mock data/ticket-sample.json --redact
 ```
 
-Or step by step:
+`run` does the whole pipeline in one shot: **connect → learn → approve → triage → solve → report**.
+That's the simplest path — no need to run the five steps by hand.
+
+Common variants:
 
 ```bash
-# 0. (optional) isolate an env
-python3 -m venv .venv && source .venv/bin/activate
-
-# 1. connect — collect + normalize a source → canonical JSON (offline mock)
-python3 -m agent connect --mock data/ticket-sample.json --redact --project ticket-sample
-
-# 2. learn — profile the corpus and PROPOSE a taxonomy (does not apply it)
-python3 -m agent learn data/ticket-sample.canonical.json
-
-# 3. approve — the human gate: draft → taxonomy.json
-python3 -m agent learn --approve
-
-# 4. triage — cluster + effective priority (deterministic, no LLM)
-python3 -m agent triage data/ticket-sample.canonical.json
-
-# 5. solve — root cause + evidence + playbook (LLM step; offline fallback here)
-python3 -m agent solve
-
-# 6. report — consolidated document (terminal | md | json)
-python3 -m agent report data/ticket-sample.canonical.json --format terminal
-
-# 7. eval — calibrate the merge threshold via cluster_hint and report F1
-python3 -m agent learn --eval data/ticket-sample.json
+python3 -m agent run --source jira-sre --redact          # live Jira (see below)
+python3 -m agent run --source pod2-csv                    # a CSV export source
+python3 -m agent run --mock data/ticket-sample.json --eval data/ticket-sample.json  # + F1
+python3 -m agent run --mock data/ticket-sample.json --format md --out data/report.md
 ```
+
+The individual commands (`connect`, `learn`, `triage`, `solve`, `report`) still exist for when
+you want to inspect a stage — see [`USAGE.md`](./USAGE.md).
 
 ## What you should see on the sample
 
@@ -74,22 +61,103 @@ DEFLECTED (2): dark-mode request · avatar-size request
 | `solve` | ACT | Rules R6–R7. Root cause + cited evidence + playbook. LLM if configured, else a-priori. |
 | `report` | REPORT | Presents only. `--format terminal\|md\|json`, `--out`. |
 
-## Going live with Jira
+## Connect to a real source
 
-1. `cp connections.example.json connections.json && chmod 600 connections.json`
-2. Export secrets **by name** (never in files): `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN`.
-3. `python3 -m agent connect --test jira-sre` then `connect --discover jira-sre`.
-4. `python3 -m agent connect --project jira-sre --since 90d --redact`.
+Sources are defined in `connections.json` and shaped by a **descriptor** — onboarding a new
+system is config, not code. Two source kinds are implemented (stdlib `urllib` + `csv`):
 
-> The live extraction transport is scaffolded (auth/pagination stubs). The **descriptor + mapping +
-> normalize** design is complete in `descriptors/jira_rest.yaml`; wire the HTTP layer to finish it.
+### Live Jira (REST)
+
+```bash
+chmod 600 connections.json                 # the 'jira-sre' connection is already defined
+
+# secrets are referenced by NAME, never stored in files:
+export JIRA_BASE_URL=https://<org>.atlassian.net
+export JIRA_EMAIL=you@wizeline.com
+export JIRA_API_TOKEN=<token>              # https://id.atlassian.com/manage/api-tokens
+export JIRA_PROJECT=SRE                     # optional; used in the JQL
+export SINCE=90d                            # optional
+
+python3 -m agent connect --test jira-sre      # validates auth + reachability (real call)
+python3 -m agent connect --discover jira-sre  # inventories fields + priority vocabulary
+python3 -m agent run --source jira-sre --redact   # full pipeline on live data
+```
+
+Driven by `descriptors/jira_rest.json`: real HTTP GET to `/rest/api/3/search`, HTTP Basic auth,
+offset pagination (`startAt`/`maxResults`/`total`), field mapping and priority/status normalization.
+Rate limits (429) back off on `Retry-After`; 401/403 abort with a clear message; network errors
+suggest `--mock`.
+
+### Multiple Jira accounts / companies
+
+Each entry in `connections.json` is an **independent account/company**: its own `base_url`, its
+own credential env vars, and its own Jira **project**. They all reuse the same descriptor.
+
+```jsonc
+{ "name": "acme-jira",   "descriptor": "descriptors/jira_rest.json",
+  "base_url": "https://acme.atlassian.net",
+  "auth": {"method":"basic","user_env":"ACME_JIRA_EMAIL","token_env":"ACME_JIRA_TOKEN"},
+  "query": {"jql": "project = OPS AND created >= -30d"} },        // project via JQL override
+
+{ "name": "globex-jira", "descriptor": "descriptors/jira_rest.json",
+  "base_url": "https://globex.atlassian.net",
+  "auth": {"method":"basic","user_env":"GLOBEX_JIRA_EMAIL","token_env":"GLOBEX_JIRA_TOKEN"},
+  "vars": {"JIRA_PROJECT": "SUPPORT", "SINCE": "60d"} }           // project via a variable
+```
+
+Two ways to specify the **project**:
+- **`query.jql`** — a full JQL override (most explicit): `"project = OPS AND created >= -30d"`.
+- **`vars`** — fill the descriptor's `${JIRA_PROJECT}` / `${SINCE}` placeholders per connection.
+
+Give each company its **own credentials** (different `token_env` names), then export them:
+
+```bash
+export ACME_JIRA_EMAIL=you@acme.com     ACME_JIRA_TOKEN=<acme token>
+export GLOBEX_JIRA_EMAIL=you@globex.com GLOBEX_JIRA_TOKEN=<globex token>
+
+python3 -m agent connect --test acme-jira      # prints the resolved URL + JQL, then checks auth
+python3 -m agent run --source acme-jira --redact
+python3 -m agent run --source globex-jira --redact
+```
+
+`--test` prints the resolved endpoint and JQL **before** any network call, so you can confirm the
+right company and project:
+
+```
+connect --test acme-jira (rest) …
+  URL:   https://acme.atlassian.net/rest/api/3/search
+  jql:   project = OPS AND created >= -30d
+```
+
+> Lookup order for `${VAR}`: environment → connection `vars` → `:-default`. Keep **secrets in the
+> environment** (never in `connections.json`); non-secret values like the project can live in `vars`.
+
+### Other REST tools (Zendesk, PagerDuty, in-house)
+
+Copy `descriptors/jira_rest.json`, edit `list_path`, `record_selector`, `pagination`, and the
+`mapping` / `normalize` tables, add a connection entry, and point `--source` at it. No code change.
+
+### File / CSV exports (air-gapped, or no API access in time)
+
+A Jira CSV export works out of the box via `descriptors/jira_csv.json`:
+
+```bash
+python3 -m agent connect --discover pod2-csv         # inventory the columns
+python3 -m agent run --source pod2-csv               # full pipeline on the CSV
+```
+
+> Reminder: the built-in taxonomy is tuned for the Disney sample. Point it at a different source
+> and it will (correctly) warn that the taxonomy is incomplete — run `learn` on that source to
+> propose a fitting one. The numbers are per-source; the engine is not.
 
 ## Project layout
 
 ```
 agent/
-  __main__.py   # CLI dispatch (5 commands)
+  __main__.py   # CLI dispatch (run + 5 commands)
+  pipeline.py   # `run`: connect → learn → approve → triage → solve → report
   connect.py    # phase 0: source → canonical JSON (+ _meta provenance)
+  sources.py    # live collectors: REST (urllib) + CSV/JSON files; auth, pagination, mapping
   canonical.py  # canonical model, normalization, PII redaction, drops cluster_hint
   engine.py     # rules R1–R7: extraction, type gate, TF-IDF, clustering+veto, severity, confidence
   learn.py      # OBSERVE + ADAPT + gate + --eval calibration (F1)
@@ -97,7 +165,8 @@ agent/
   solve.py      # LLM ACT (offline a-priori fallback)
   report.py     # consolidation
   config.py     # taxonomy load/save (YAML if PyYAML present, else JSON)
-descriptors/    # source descriptors (jira_rest.yaml)
+descriptors/    # source descriptors: jira_rest.json (live REST), jira_csv.json (file)
+connections.json  # named connections; secrets referenced by env-var NAME only
 data/           # canonical JSON, corpus_profile, triage, playbooks, report, taxonomy
 ```
 

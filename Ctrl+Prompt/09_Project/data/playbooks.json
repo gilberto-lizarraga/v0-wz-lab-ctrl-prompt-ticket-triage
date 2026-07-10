@@ -23,9 +23,9 @@
       "verified": false,
       "provenance": {
         "taxonomy_version": 1,
-        "calibration_status": "heuristic",
+        "calibration_status": "unreviewed",
         "merge_threshold": 0.3,
-        "reviewed_by": "ivan.espitia"
+        "reviewed_by": null
       }
     },
     {
@@ -49,9 +49,9 @@
       "verified": false,
       "provenance": {
         "taxonomy_version": 1,
-        "calibration_status": "heuristic",
+        "calibration_status": "unreviewed",
         "merge_threshold": 0.3,
-        "reviewed_by": "ivan.espitia"
+        "reviewed_by": null
       }
     },
     {
@@ -75,9 +75,9 @@
       "verified": false,
       "provenance": {
         "taxonomy_version": 1,
-        "calibration_status": "heuristic",
+        "calibration_status": "unreviewed",
         "merge_threshold": 0.3,
-        "reviewed_by": "ivan.espitia"
+        "reviewed_by": null
       }
     },
     {
@@ -101,9 +101,9 @@
       "verified": false,
       "provenance": {
         "taxonomy_version": 1,
-        "calibration_status": "heuristic",
+        "calibration_status": "unreviewed",
         "merge_threshold": 0.3,
-        "reviewed_by": "ivan.espitia"
+        "reviewed_by": null
       }
     }
   ]

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "kind": "file",
+  "path": "${CSV_PATH:-../POD2_Bugs_Gilberto_Lizarraga.csv}",
+  "mapping": {
+    "id": "Key",
+    "title": "Summary",
+    "body": "What Needs to Be Fixed || Summary",
+    "created_at": "Created",
+    "source": "= POD2-CSV",
+    "declared_priority": "Priority",
+    "status": "Status"
+  },
+  "normalize": {
+    "declared_priority": {"P0": 0, "P1": 0, "P2": 1, "P3": 2, "P4": 3, "default": 2},
+    "status": {"open": "open", "to do": "open", "in progress": "in_progress",
+               "done": "resolved", "closed": "resolved", "default": "open"}
+  },
+  "capture_unmapped": "raw_extra"
+}
